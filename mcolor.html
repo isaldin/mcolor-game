@@ -56,6 +56,11 @@
 
 <span id="ctrlZ">CTRL+Z</span>
 
+<br/>
+
+<div id="buyCell">
+</div>
+
 </body>
 <script type="text/javascript">
     var blocksArray = [];
@@ -63,6 +68,7 @@
     var colors = ['#FFCC00', '#FF3300', '#FF9900'];//, '#0011FF', '#37FF00', '#FFFFFF', '#FFC2E0', '#E8EBFF'];
     var selectedBlock = {row:-1, col:-1};
     var hoveredBlock = {row:-1, col:-1};
+    var highlightedBlock = {row:-1, col:-1};
     var score = 0;
     var historyArray = [];//{blocksArray: [], hoveredBlock: {}, selectedBlock: {}, score: 0}
 
@@ -70,6 +76,7 @@
     * undoCommand types:
      * 1 -- changed color in multicolor cell
      * 2 -- remove cells block
+     * 3 -- buy cell
     * */
 
     function addSnapshotBeforeChangeColorInMulticolorCell(cellRow, cellCol)
@@ -84,7 +91,14 @@
         historyArray.push(undoCommand);
     }
 
-    $("#ctrlZ").click(function(){
+    function addSnapshotBeforeCellBuy(cellRow, cellCol)
+    {
+        var undoCommand = {commandType: 3, row: cellRow, col: cellCol};
+        historyArray.push(undoCommand);
+    }
+
+    $("#ctrlZ").click(function()
+    {
         ctrlZ();
     });
 
@@ -96,7 +110,7 @@
 
     function ctrlZ()
     {
-        if(historyArray == undefined || historyArray.length < 0)
+        if(historyArray == undefined || historyArray.length < 1)
         {
             return;
         }
@@ -128,6 +142,19 @@
                 score = prevScore;
                 addToScore(-5);
                 break;
+
+            case 3:
+                var row = historyItem.row;
+                var col = historyItem.col;
+                initBlock(row, col, -1);
+                addToScore(75);
+                break;
+        }
+
+        if(historyArray.length == 0)
+        {
+            score = 0;
+            addToScore(0);
         }
     }
 
@@ -238,9 +265,12 @@
 
     function cellClick(row, col)
     {
+        highlightCell(row, col);
+
         //if selected cell is empty yet
         if(blocksArray[row][col] == -1) //colorNum is -1 -- empty cell
         {
+            showBuyCellBlock(row, col);
             return;
         }
 
@@ -332,7 +362,7 @@
             }
             else
             {
-                bonus = 0 - emptyBlocksCount * 0.5;
+                bonus = 0;// - emptyBlocksCount * 0.5;
             }
 
             addToScore(currentScore + bonus);
@@ -348,6 +378,7 @@
     {
         var gameArea = $('#gameArea').css({width: size*34, height: size*34});
         gameArea.empty();
+        gameArea.css("background-color", "black");
 
         for(var i = 0; i < size; i++)
         {
@@ -396,6 +427,47 @@
                 break;
         }
         $('#gameArea #'+moveToCell.row+"_"+moveToCell.col).trigger("hover");
+    }
+
+    function highlightCell(row, col)
+    {
+        $("#"+row+"_"+col).css({"width": "30px", "height": "30px", "border": "white 1px solid"});
+    }
+
+    function showBuyCellBlock(row, col)
+    {
+        var buyBlock = $('#buyCell');
+        if(score < 100)
+        {
+            return;
+        }
+
+        highlightCell(row, col);
+
+        buyBlock.html("");
+
+        var buyY = $("<div/>").css({"background-color": "#FC0"}).addClass("block").click(function(){ buyCell(0); });
+        var buyR = $("<div/>").css({"background-color": "#F30"}).addClass("block").click(function(){ buyCell(1); });
+        var buyO = $("<div/>").css({"background-color": "#F90"}).addClass("block").click(function(){ buyCell(2); });
+        buyBlock.append(buyY);
+        buyBlock.append(buyR);
+        buyBlock.append(buyO);
+
+        buyBlock.attr("data-forrow", row);
+        buyBlock.attr("data-forcol", col);
+    }
+
+    function buyCell(color)
+    {
+        var row = $('#buyCell').attr("data-forrow");
+        var col = $('#buyCell').attr("data-forcol");
+
+        addSnapshotBeforeCellBuy(row, col);
+
+        $("#buyCell").html("");
+        addToScore(-100);
+
+        initBlock(row, col, color);
     }
 
     $(document).ready(function(){
