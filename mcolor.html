@@ -3,6 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="shortcut.js"></script>
     <style>
         .block
         {
@@ -77,21 +78,29 @@
         historyArray.push(undoCommand);
     }
 
-    function addSnapshotBeforeCellsBlockRemove(color, cells)
+    function addSnapshotBeforeCellsBlockRemove(color, cells, lastClickedCell)
     {
-        var undoCommand = {commandType: 2, color: color, cells: cells, score: score};
+        var undoCommand = {commandType: 2, color: color, cells: cells, score: score, lastClickedCell: lastClickedCell};
         historyArray.push(undoCommand);
     }
 
     $("#ctrlZ").click(function(){
-        if(historyArray != undefined && historyArray.length > 0)
-        {
-            ctrlZ();
-        }
+        ctrlZ();
     });
+
+    function addToScore(points)
+    {
+        score += points;
+        $('#score').text("score: " + score);
+    }
 
     function ctrlZ()
     {
+        if(historyArray == undefined || historyArray.length < 0)
+        {
+            return;
+        }
+
         var historyItem = historyArray[historyArray.length-1];
 
         historyArray.pop();
@@ -99,13 +108,13 @@
         switch(historyItem.commandType)
         {
             case 1:
-                //cancel select color in multicolor cell
+
+                addToScore(-5);
+
                 initBlock(historyItem.row, historyItem.col, historyItem.cellColor);
                 break;
 
             case 2:
-                selectedBlock = {row: -1, col: -1};
-
                 var prevScore = historyItem.score;
                 var cells = historyItem.cells;
                 var color = historyItem.color;
@@ -117,7 +126,7 @@
                 }
 
                 score = prevScore;
-                $('#score').text("score: " + score);
+                addToScore(-5);
                 break;
         }
     }
@@ -286,7 +295,7 @@
                 }
                 else if(blocksArray[r][c] == -1)
                 {
-                    emptyBlocksCount += 0.5;
+                    emptyBlocksCount += 1;
                 }
                 else
                 {
@@ -297,7 +306,8 @@
 
         if(allRight)
         {
-            addSnapshotBeforeCellsBlockRemove(startCellColor, cellsForRemove);
+            var lastClickedCell = {row: row, col:col};
+            addSnapshotBeforeCellsBlockRemove(startCellColor, cellsForRemove, lastClickedCell);
 
             for(r = minRow; r <= maxRow; r++)
             {
@@ -310,14 +320,22 @@
 
             var currentScore =((1+maxRow-minRow) * (1+maxCol-minCol) - emptyBlocksCount);
 
+            if(startCellColor == 2)
+            {
+                currentScore = currentScore * 2;
+            }
+
             var bonus = 0;
             if(emptyBlocksCount == 0)
             {
                 bonus = currentScore / 2;
             }
+            else
+            {
+                bonus = 0 - emptyBlocksCount * 0.5;
+            }
 
-            score += currentScore + bonus;
-            $('#score').text("score: " + score);
+            addToScore(currentScore + bonus);
         }
     }
 
@@ -341,6 +359,45 @@
         }
     }
 
+    function selectedCellRow()
+    {
+        return selectedBlock.row;
+    }
+
+    function selectedCellColumn()
+    {
+        return selectedBlock.col;
+    }
+
+    function moveCursor(direction)
+    {
+        var moveToCell = {};
+        var row = selectedCellRow();
+        var col = selectedCellColumn();
+
+        switch(direction)
+        {
+            case "U":
+                console.log(direction + "_" + row + "_" + blocksArray[row-1]);
+                if(blocksArray[row-1] != undefined)
+                moveToCell = {row: row-1, col: col};
+                break;
+
+            case "D":
+                moveToCell = {row: selectedBlock.row + 1, col: selectedBlock.col};
+                break;
+
+            case "L":
+                //
+                break;
+
+            case "R":
+                //
+                break;
+        }
+        $('#gameArea #'+moveToCell.row+"_"+moveToCell.col).trigger("hover");
+    }
+
     $(document).ready(function(){
 
         //fill gameArea with random color's cells
@@ -357,6 +414,12 @@
         }
 
         initArea();
+
+        shortcut.add("Ctrl+Z", function(){ctrlZ()});
+        shortcut.add("Up", function(){moveCursor("U")});
+        shortcut.add("Down", function(){moveCursor("D")});
+        shortcut.add("Right", function(){moveCursor("R")});
+        shortcut.add("Left", function(){moveCursor("L")});
     });
 </script>
 </html>
