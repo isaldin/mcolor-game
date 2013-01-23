@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <style>
+        .block
+        {
+            width: 32px;
+            height: 32px;
+            display: block;
+            float: left;
+            margin: 1px;
+        }
+        .subBlock
+        {
+            width: 16px;
+            height: 16px;
+            position: relative;
+            right: 0px;
+        }
+        .right
+        {
+            top: 16px;
+            left: 16px;
+        }
+        .left
+        {
+            float: left;
+            top: 16px;
+        }
+        .lastCol
+        {
+            clear: left;
+        }
+        body
+        {
+            background-color: #333333;
+        }
+        #gameArea
+        {
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<div id="gameArea">
+    <!---->
+</div>
+<p id="score" style="color: white">score: 0</p>
+</body>
+<script type="text/javascript">
+    var blocksArray = [];
+    var size = 16;
+    var colors = ['#FFCC00', '#FF3300', '#FF9900'];//, '#0011FF', '#37FF00', '#FFFFFF', '#FFC2E0', '#E8EBFF'];
+    var selectedBlock = {row:-1, col:-1};
+    var hoveredBlock = {row:-1, col:-1};
+    var score = 0;
+
+    function addSubBlock(block, color1, color2)
+    {
+        var l = $('<div/>')
+                .addClass('subBlock left')
+                .css({
+                    "background-color": colors[color1],
+                    "display" : "none"
+                });
+
+        var r = $('<div/>')
+                .addClass('subBlock right')
+                .css({
+                    "background-color": colors[color2],
+                    "display" : "none"
+                });
+
+        $(l).click(function(){
+            var row = $(block).attr('data-row');
+            var col = $(block).attr('data-col');
+            initBlock(row, col, color1);
+        });
+
+        $(r).click(function(){
+            var row = $(block).attr('data-row');
+            var col = $(block).attr('data-col');
+            initBlock(row, col, color2);
+        });
+
+        $(block).append(l).append(r);
+    }
+
+    function initBlock(row, col, color)
+    {
+        blocksArray[row][col] = color;
+
+        var block =
+                $('<div></div>')
+                        .addClass('block').addClass(col == 0 ? "lastCol" : "")
+                        .attr("data-row", row)
+                        .attr("data-col", col)
+                        .attr("id", row+"_"+col)
+                        .css("background-color", color != -1 ? colors[color] : "#333333");
+
+        switch(color)
+        {
+            case 2:
+                addSubBlock(block, 0, 1);
+                break;
+            case 4:
+                addSubBlock(block, 1, 3);
+                break;
+            case 6:
+                addSubBlock(block, 5, 0);
+                break;
+            case 7:
+                addSubBlock(block, 5, 3);
+                break;
+        }
+
+        block.hover(function()
+        {
+            var row = $(this).attr('data-row');
+            var col = $(this).attr('data-col');
+            var hoveredDiv = $('#'+hoveredBlock.row+"_"+hoveredBlock.col);
+
+            if(selectedBlock.row == row && selectedBlock.col == col)
+            {
+                hoveredDiv.find("div.subBlock").css('display', 'none');
+                return;
+            }
+
+            if(hoveredBlock.row != -1 && hoveredBlock.col != -1)
+            {
+                hoveredDiv.find("div.subBlock").css('display', 'none');
+            }
+
+            hoveredBlock = {row: row, col: col};
+            $(this).find("div.subBlock").css('display', 'block');
+        });
+
+        block.click(function()
+        {
+            $(this).find("div.subBlock").css('display', 'none');
+
+            var row = $(this).attr('data-row');
+            var col = $(this).attr('data-col');
+
+            cellClick(row, col);
+        });
+
+        $('#gameArea #'+row+'_'+col).replaceWith(block);
+    }
+
+    function deselectCell(row, col)
+    {
+        $('#gameArea #'+row+"_"+col).text("");
+        initBlock(row, col, blocksArray[row][col])
+    }
+
+    function cellClick(row, col)
+    {
+        //if selected cell is empty yet
+        if(blocksArray[row][col] == -1) //colorNum is -1 -- empty cell
+        {
+            return;
+        }
+
+        //if click by already selected cell
+        if(selectedBlock.row == row && selectedBlock.col == col)
+        {
+            selectedBlock = {row: -1, col: -1};
+            deselectCell(row, col);
+            return;
+        }
+
+        //if its first selection
+        if(selectedBlock.row == -1 && selectedBlock.col == -1)
+        {
+            selectedBlock = {row: row, col: col};
+            $('#gameArea #'+row+"_"+col).prepend("*");
+            return;
+        }
+
+        //
+
+        /*if(selectedBlock.row != -1 && selectedBlock.col != -1 && selectedBlock.row != r && selectedBlock.col != c)
+        {
+            var color = blocksArray[r][c];
+
+            var fromRow = r < selectedBlock.row ? r : selectedBlock.row;
+            var fromCol = c < selectedBlock.col ? c : selectedBlock.col;
+
+            var toRow = r > selectedBlock.row ? r : selectedBlock.row;
+            var toCol = c > selectedBlock.col ? c : selectedBlock.col;
+
+            var allRight = 1;
+            for(var i = fromRow; i <= toRow; i++)
+            {
+                for(var j = fromCol; j <= toCol; j++)
+                {
+                    if(blocksArray[i][j] != -1 && blocksArray[i][j] != color)
+                    {
+                        allRight = 0;
+                    }
+                }
+            }
+
+            if(allRight == 1)
+            {
+                for(i = fromRow; i <= toRow; i++)
+                {
+                    for(j = fromCol; j <= toCol; j++)
+                    {
+                        blocksArray[i][j] = -1;
+                        $('#'+i+"_"+j).css("background-color", "#333333");
+                    }
+                }
+                selectedBlock = {row: -1, col: -1};
+                score += i*j;
+                $('#score').text("score: " + score);
+            }
+            else
+            {
+                selectedBlock = {row: r, col: c};
+            }
+        }*/
+    }
+
+    $(document).ready(function(){
+
+        //fill gameArea with random color's cells
+        var gameArea = $('#gameArea').css({width: size*34, height: size*34});
+        gameArea.empty();
+        selectedBlock = {row:-1, col:-1};
+        hoveredBlock = {row:-1, col:-1};
+        blocksArray = [];
+
+        for(var i = 0; i < size; i++)
+        {
+            blocksArray[i] = [];
+            for(var j = 0; j < size; j++)
+            {
+                gameArea.append($('<div/>').attr('id', i+"_"+j));
+
+                var colorNum = getRandomColorNum();
+                initBlock(i, j, colorNum)
+            }
+        }
+
+        function getRandomColorNum()
+        {
+            return Math.floor(Math.random()*3);
+        }
+    });
+</script>
+</html>
