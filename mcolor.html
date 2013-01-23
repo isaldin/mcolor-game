@@ -41,6 +41,10 @@
         {
             float: left;
         }
+        #ctrlZ
+        {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +52,9 @@
     <!---->
 </div>
 <p id="score" style="color: white">score: 0</p>
+
+<span id="ctrlZ">CTRL+Z</span>
+
 </body>
 <script type="text/javascript">
     var blocksArray = [];
@@ -56,6 +63,64 @@
     var selectedBlock = {row:-1, col:-1};
     var hoveredBlock = {row:-1, col:-1};
     var score = 0;
+    var historyArray = [];//{blocksArray: [], hoveredBlock: {}, selectedBlock: {}, score: 0}
+
+    /*
+    * undoCommand types:
+     * 1 -- changed color in multicolor cell
+     * 2 -- remove cells block
+    * */
+
+    function addSnapshotBeforeChangeColorInMulticolorCell(cellRow, cellCol)
+    {
+        var undoCommand = {commandType: 1, row: cellRow, col: cellCol, cellColor: blocksArray[cellRow][cellCol]};
+        historyArray.push(undoCommand);
+    }
+
+    function addSnapshotBeforeCellsBlockRemove(color, cells)
+    {
+        var undoCommand = {commandType: 2, color: color, cells: cells, score: score};
+        historyArray.push(undoCommand);
+    }
+
+    $("#ctrlZ").click(function(){
+        if(historyArray != undefined && historyArray.length > 0)
+        {
+            ctrlZ();
+        }
+    });
+
+    function ctrlZ()
+    {
+        var historyItem = historyArray[historyArray.length-1];
+
+        historyArray.pop();
+
+        switch(historyItem.commandType)
+        {
+            case 1:
+                //cancel select color in multicolor cell
+                initBlock(historyItem.row, historyItem.col, historyItem.cellColor);
+                break;
+
+            case 2:
+                selectedBlock = {row: -1, col: -1};
+
+                var prevScore = historyItem.score;
+                var cells = historyItem.cells;
+                var color = historyItem.color;
+
+                for(var i = 0; i < cells.length; i++)
+                {
+                    var cell = cells[i];
+                    initBlock(cell.row, cell.col, color);
+                }
+
+                score = prevScore;
+                $('#score').text("score: " + score);
+                break;
+        }
+    }
 
     function addSubBlock(block, color1, color2)
     {
@@ -76,12 +141,18 @@
         $(l).click(function(){
             var row = $(block).attr('data-row');
             var col = $(block).attr('data-col');
+
+            addSnapshotBeforeChangeColorInMulticolorCell(row, col);
+
             initBlock(row, col, color1);
         });
 
         $(r).click(function(){
             var row = $(block).attr('data-row');
             var col = $(block).attr('data-col');
+
+            addSnapshotBeforeChangeColorInMulticolorCell(row, col);
+
             initBlock(row, col, color2);
         });
 
@@ -153,7 +224,7 @@
     function deselectCell(row, col)
     {
         $('#gameArea #'+row+"_"+col).text("");
-        initBlock(row, col, blocksArray[row][col])
+        initBlock(row, col, blocksArray[row][col]);
     }
 
     function cellClick(row, col)
@@ -197,6 +268,7 @@
         var startCellColor = blocksArray[selectedBlock.row][selectedBlock.col];
         var emptyBlocksCount = 0;
         var allRight = true;
+        var cellsForRemove = [];
         for(var r = minRow; r <= maxRow; r++)
         {
             if(!allRight)
@@ -204,11 +276,6 @@
 
             for(var c = minCol; c <= maxCol; c++)
             {
-                if(blocksArray[r][c] == -1)
-                {
-                    emptyBlocksCount += 2;
-                }
-
                 if(blocksArray[r][c] != -1 && blocksArray[r][c] != startCellColor)
                 {
                     allRight = false;
@@ -217,11 +284,21 @@
                     $('#gameArea #'+row+"_"+col).prepend("*");
                     break;
                 }
+                else if(blocksArray[r][c] == -1)
+                {
+                    emptyBlocksCount += 0.5;
+                }
+                else
+                {
+                    cellsForRemove.push({row:r, col:c});
+                }
             }
         }
 
         if(allRight)
         {
+            addSnapshotBeforeCellsBlockRemove(startCellColor, cellsForRemove);
+
             for(r = minRow; r <= maxRow; r++)
             {
                 for(c = minCol; c <= maxCol; c++)
@@ -244,31 +321,42 @@
         }
     }
 
+    function getRandomColorNum()
+    {
+        return Math.floor(Math.random()*3);
+    }
+
+    function initArea()
+    {
+        var gameArea = $('#gameArea').css({width: size*34, height: size*34});
+        gameArea.empty();
+
+        for(var i = 0; i < size; i++)
+        {
+            for(var j = 0; j < size; j++)
+            {
+                gameArea.append($('<div/>').attr('id', i+"_"+j));
+                initBlock(i, j, blocksArray[i][j])
+            }
+        }
+    }
+
     $(document).ready(function(){
 
         //fill gameArea with random color's cells
-        var gameArea = $('#gameArea').css({width: size*34, height: size*34});
-        gameArea.empty();
         selectedBlock = {row:-1, col:-1};
         hoveredBlock = {row:-1, col:-1};
         blocksArray = [];
-
         for(var i = 0; i < size; i++)
         {
             blocksArray[i] = [];
             for(var j = 0; j < size; j++)
             {
-                gameArea.append($('<div/>').attr('id', i+"_"+j));
-
-                var colorNum = getRandomColorNum();
-                initBlock(i, j, colorNum)
+                blocksArray[i][j] = getRandomColorNum();
             }
         }
 
-        function getRandomColorNum()
-        {
-            return Math.floor(Math.random()*3);
-        }
+        initArea();
     });
 </script>
 </html>
