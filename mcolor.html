@@ -180,49 +180,68 @@
             return;
         }
 
-        //
-
-        /*if(selectedBlock.row != -1 && selectedBlock.col != -1 && selectedBlock.row != r && selectedBlock.col != c)
+        if(row == selectedBlock.row || col == selectedBlock.col)
         {
-            var color = blocksArray[r][c];
+            deselectCell(selectedBlock.row, selectedBlock.col);
+            selectedBlock = {row: row, col: col};
+            $('#gameArea #'+row+"_"+col).prepend("*");
+            return;
+        }
 
-            var fromRow = r < selectedBlock.row ? r : selectedBlock.row;
-            var fromCol = c < selectedBlock.col ? c : selectedBlock.col;
+        var
+                minRow = Math.min(selectedBlock.row, row),
+                minCol = Math.min(selectedBlock.col, col),
+                maxRow = Math.max(selectedBlock.row, row),
+                maxCol = Math.max(selectedBlock.col, col);
 
-            var toRow = r > selectedBlock.row ? r : selectedBlock.row;
-            var toCol = c > selectedBlock.col ? c : selectedBlock.col;
+        var startCellColor = blocksArray[selectedBlock.row][selectedBlock.col];
+        var emptyBlocksCount = 0;
+        var allRight = true;
+        for(var r = minRow; r <= maxRow; r++)
+        {
+            if(!allRight)
+                break;
 
-            var allRight = 1;
-            for(var i = fromRow; i <= toRow; i++)
+            for(var c = minCol; c <= maxCol; c++)
             {
-                for(var j = fromCol; j <= toCol; j++)
+                if(blocksArray[r][c] == -1)
                 {
-                    if(blocksArray[i][j] != -1 && blocksArray[i][j] != color)
-                    {
-                        allRight = 0;
-                    }
+                    emptyBlocksCount += 2;
+                }
+
+                if(blocksArray[r][c] != -1 && blocksArray[r][c] != startCellColor)
+                {
+                    allRight = false;
+                    deselectCell(selectedBlock.row, selectedBlock.col);
+                    selectedBlock = {row: row, col: col};
+                    $('#gameArea #'+row+"_"+col).prepend("*");
+                    break;
                 }
             }
+        }
 
-            if(allRight == 1)
+        if(allRight)
+        {
+            for(r = minRow; r <= maxRow; r++)
             {
-                for(i = fromRow; i <= toRow; i++)
+                for(c = minCol; c <= maxCol; c++)
                 {
-                    for(j = fromCol; j <= toCol; j++)
-                    {
-                        blocksArray[i][j] = -1;
-                        $('#'+i+"_"+j).css("background-color", "#333333");
-                    }
+                    initBlock(r,c,-1);
                 }
-                selectedBlock = {row: -1, col: -1};
-                score += i*j;
-                $('#score').text("score: " + score);
             }
-            else
+            selectedBlock = {row: -1, col: -1};
+
+            var currentScore =((1+maxRow-minRow) * (1+maxCol-minCol) - emptyBlocksCount);
+
+            var bonus = 0;
+            if(emptyBlocksCount == 0)
             {
-                selectedBlock = {row: r, col: c};
+                bonus = currentScore / 2;
             }
-        }*/
+
+            score += currentScore + bonus;
+            $('#score').text("score: " + score);
+        }
     }
 
     $(document).ready(function(){
