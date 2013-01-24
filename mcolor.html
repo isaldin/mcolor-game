@@ -6,46 +6,28 @@
     <script type="text/javascript" src="shortcut.js"></script>
     <style>
         .block
-        {
-            width: 32px;
-            height: 32px;
-            display: block;
-            float: left;
-            margin: 1px;
-        }
+        { width: 32px; height: 32px; display: block; float: left; margin: 1px; }
+
         .subBlock
-        {
-            width: 16px;
-            height: 16px;
-            position: relative;
-            right: 0px;
-        }
+        { width: 16px; height: 16px; position: relative; right: 0px; }
+
         .right
-        {
-            top: 16px;
-            left: 16px;
-        }
+        { top: 16px; left: 16px; }
+
         .left
-        {
-            float: left;
-            top: 16px;
-        }
+        { float: left; top: 16px; }
+
         .lastCol
-        {
-            clear: left;
-        }
+        { clear: left; }
+
         body
-        {
-            background-color: #333333;
-        }
+        { background-color: #333333; }
+
         #gameArea
-        {
-            float: left;
-        }
+        { float: left; }
+
         #ctrlZ
-        {
-            cursor: pointer;
-        }
+        { cursor: pointer; }
     </style>
 </head>
 <body>
@@ -488,10 +470,10 @@
         initArea();
 
         shortcut.add("Ctrl+Z", function(){ctrlZ()});
-        shortcut.add("Up", function(){moveCursor("U")});
+        /*shortcut.add("Up", function(){moveCursor("U")});
         shortcut.add("Down", function(){moveCursor("D")});
         shortcut.add("Right", function(){moveCursor("R")});
-        shortcut.add("Left", function(){moveCursor("L")});
+        shortcut.add("Left", function(){moveCursor("L")});*/
     });
 </script>
 </html>
