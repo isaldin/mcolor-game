@@ -4,18 +4,19 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="shortcut.js"></script>
+    <script type="text/javascript" src="sprintf-0.6.js"></script>
     <style>
         .block
         { width: 32px; height: 32px; display: block; float: left; margin: 1px; }
 
         .subBlock
-        { width: 16px; height: 16px; position: relative; right: 0px; }
+        { width: 14px; height: 14px; position: relative; right: 0px; }
 
         .right
-        { top: 16px; left: 16px; }
+        { top: 14px; left: 14px; }
 
         .left
-        { float: left; top: 16px; }
+        { float: left; top: 14px; }
 
         .lastCol
         { clear: left; }
@@ -40,6 +41,11 @@
 
 <br/>
 
+<p style="color: white; font-weight: bold">Ctrl -- выбор первого цвета в ячейке
+<br/>Alt -- выбор второго цвета в ячейке
+<br/>Z -- выбор ячейки
+<br/>Shift+Z -- отмена последнего действия
+
 <div id="buyCell">
 </div>
 
@@ -50,7 +56,7 @@
     var colors = ['#FFCC00', '#FF3300', '#FF9900'];//, '#0011FF', '#37FF00', '#FFFFFF', '#FFC2E0', '#E8EBFF'];
     var selectedBlock = {row:-1, col:-1};
     var hoveredBlock = {row:-1, col:-1};
-    var highlightedBlock = {row:-1, col:-1};
+    var highlightedBlock = {row:0, col:0};
     var score = 0;
     var historyArray = [];//{blocksArray: [], hoveredBlock: {}, selectedBlock: {}, score: 0}
 
@@ -105,9 +111,10 @@
         {
             case 1:
 
-                addToScore(-5);
+                //addToScore(-5);
 
                 initBlock(historyItem.row, historyItem.col, historyItem.cellColor);
+                highlightCell(historyItem.row, historyItem.col);
                 break;
 
             case 2:
@@ -119,10 +126,11 @@
                 {
                     var cell = cells[i];
                     initBlock(cell.row, cell.col, color);
+                    highlightCell(cell.row, cell.col);
                 }
 
                 score = prevScore;
-                addToScore(-5);
+                addToScore(0);
                 break;
 
             case 3:
@@ -163,6 +171,7 @@
             addSnapshotBeforeChangeColorInMulticolorCell(row, col);
 
             initBlock(row, col, color1);
+            highlightCell(row, col);
         });
 
         $(r).click(function(){
@@ -172,6 +181,7 @@
             addSnapshotBeforeChangeColorInMulticolorCell(row, col);
 
             initBlock(row, col, color2);
+            highlightCell(row, col);
         });
 
         $(block).append(l).append(r);
@@ -237,6 +247,33 @@
         });
 
         $('#gameArea #'+row+'_'+col).replaceWith(block);
+    }
+
+    function selectCellFromKb()
+    {
+        var cell = $('#'+highlightedBlock.row+'_'+highlightedBlock.col);
+
+        var row = cell.attr('data-row');
+        var col = cell.attr('data-col');
+
+        cellClick(row, col);
+
+        highlightCell(row, col);
+        cell.find("div.subBlock").css('display', 'none');
+    }
+
+    function selectFirstColorInCellKb()
+    {
+        var cell = $('#'+highlightedBlock.row+'_'+highlightedBlock.col);
+        console.log(cell);
+        cell.find(".left").trigger('click');
+    }
+
+    function selectSecondColorInCellKb()
+    {
+        var cell = $('#'+highlightedBlock.row+'_'+highlightedBlock.col);
+        console.log(cell.find(".second"));
+        cell.find(".right").trigger('click');
     }
 
     function deselectCell(row, col)
@@ -348,6 +385,7 @@
             }
 
             addToScore(currentScore + bonus);
+            highlightCell(row, col);
         }
     }
 
@@ -370,6 +408,8 @@
                 initBlock(i, j, blocksArray[i][j])
             }
         }
+
+        highlightCell(0, 0);
     }
 
     function selectedCellRow()
@@ -384,36 +424,56 @@
 
     function moveCursor(direction)
     {
-        var moveToCell = {};
-        var row = selectedCellRow();
-        var col = selectedCellColumn();
+        var row = Number(highlightedBlock.row);
+        var col = Number(highlightedBlock.col);
 
         switch(direction)
         {
             case "U":
-                console.log(direction + "_" + row + "_" + blocksArray[row-1]);
-                if(blocksArray[row-1] != undefined)
-                moveToCell = {row: row-1, col: col};
+                if(row > 0)
+                {
+                    highlightCell(row - 1, col);
+                }
                 break;
 
             case "D":
-                moveToCell = {row: selectedBlock.row + 1, col: selectedBlock.col};
+                if(row < 15)
+                {
+                    highlightCell(row + 1, col);
+                }
                 break;
 
             case "L":
-                //
+                if(col > 0)
+                {
+                    highlightCell(row, col - 1);
+                }
                 break;
 
             case "R":
-                //
+                if(col < 15)
+                {
+                    highlightCell(row, col +1);
+                }
                 break;
         }
-        $('#gameArea #'+moveToCell.row+"_"+moveToCell.col).trigger("hover");
+        //$('#gameArea #'+moveToCell.row+"_"+moveToCell.col).trigger("hover");
     }
 
     function highlightCell(row, col)
     {
-        $("#"+row+"_"+col).css({"width": "30px", "height": "30px", "border": "white 1px solid"});
+        $("#"+highlightedBlock.row+"_"+highlightedBlock.col).css({"width": "32px", "height": "32px", "border": "none"});
+        $("#"+highlightedBlock.row+"_"+highlightedBlock.col).find(".subBlock").css("display", "none");
+
+        $("#"+row+"_"+col).css({"width": "28px", "height": "28px", "border": "white 2px solid"});
+
+        if(highlightedBlock.col != selectedBlock.col && highlightedBlock.row != selectedBlock.row)
+        {
+            $("#"+row+"_"+col).find(".subBlock").css({"display": "block"/*, width:"16px", height:"16px"*/});
+        }
+
+        highlightedBlock.row = row;
+        highlightedBlock.col = col;
     }
 
     function showBuyCellBlock(row, col)
@@ -469,11 +529,14 @@
 
         initArea();
 
-        shortcut.add("Ctrl+Z", function(){ctrlZ()});
-        /*shortcut.add("Up", function(){moveCursor("U")});
+        shortcut.add("shift+Z", function(){ctrlZ()});
+        shortcut.add("Up", function(){moveCursor("U")});
         shortcut.add("Down", function(){moveCursor("D")});
         shortcut.add("Right", function(){moveCursor("R")});
-        shortcut.add("Left", function(){moveCursor("L")});*/
+        shortcut.add("Left", function(){moveCursor("L")});
+        shortcut.add("z", function(){selectCellFromKb()});
+        shortcut.add("ctrl", function(){selectFirstColorInCellKb()});
+        shortcut.add("alt", function(){selectSecondColorInCellKb()});
     });
 </script>
 </html>
