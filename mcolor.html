@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="shortcut.js"></script>
-    <script type="text/javascript" src="sprintf-0.6.js"></script>
+    <!--<script type="text/javascript" src="sprintf-0.6.js"></script>-->
     <style>
         .block
         { width: 32px; height: 32px; display: block; float: left; margin: 1px; }
@@ -13,10 +13,10 @@
         { width: 14px; height: 14px; position: relative; right: 0px; }
 
         .right
-        { top: 14px; left: 14px; }
+        { top: 0px; left: 14px; background: url("2_.png")}
 
         .left
-        { float: left; top: 14px; }
+        { float: left; top: 14px; background: url("3_.png") }
 
         .lastCol
         { clear: left; }
@@ -53,7 +53,18 @@
 <script type="text/javascript">
     var blocksArray = [];
     var size = 16;
-    var colors = ['#FFCC00', '#FF3300', '#FF9900'];//, '#0011FF', '#37FF00', '#FFFFFF', '#FFC2E0', '#E8EBFF'];
+
+    var colors = [
+        '1.png',
+        '2.png',
+        '3.png',
+//        '#0011FF',
+//        '#37FF00',
+//        '#FFFFFF',
+//        '#FFC2E0',
+//        '#E8EBFF',
+    ];
+
     var selectedBlock = {row:-1, col:-1};
     var hoveredBlock = {row:-1, col:-1};
     var highlightedBlock = {row:0, col:0};
@@ -191,13 +202,15 @@
     {
         blocksArray[row][col] = color;
 
+        var file = color != -1 ? colors[color] : "";
         var block =
                 $('<div></div>')
                         .addClass('block').addClass(col == 0 ? "lastCol" : "")
                         .attr("data-row", row)
                         .attr("data-col", col)
                         .attr("id", row+"_"+col)
-                        .css("background-color", color != -1 ? colors[color] : "#333333");
+                        .css("background", "url('"+file+"')");
+//                        .css("background-color", color != -1 ? colors[color] : "#333333");
 
         switch(color)
         {
@@ -217,6 +230,8 @@
 
         block.hover(function()
         {
+            highlightCell(row, col);
+
             var row = $(this).attr('data-row');
             var col = $(this).attr('data-col');
             var hoveredDiv = $('#'+hoveredBlock.row+"_"+hoveredBlock.col);
@@ -244,6 +259,7 @@
             var col = $(this).attr('data-col');
 
             cellClick(row, col);
+            highlightCell(row, col);
         });
 
         $('#gameArea #'+row+'_'+col).replaceWith(block);
@@ -391,14 +407,14 @@
 
     function getRandomColorNum()
     {
-        return Math.floor(Math.random()*3);
+        return Math.floor(Math.random() * (colors.length));
     }
 
     function initArea()
     {
         var gameArea = $('#gameArea').css({width: size*34, height: size*34});
         gameArea.empty();
-        gameArea.css("background-color", "black");
+        gameArea.css("background-color", "white");
 
         for(var i = 0; i < size; i++)
         {
@@ -409,7 +425,7 @@
             }
         }
 
-        highlightCell(0, 0);
+        //highlightCell(0, 0);
     }
 
     function selectedCellRow()
@@ -462,15 +478,15 @@
 
     function highlightCell(row, col)
     {
-        $("#"+highlightedBlock.row+"_"+highlightedBlock.col).css({"width": "32px", "height": "32px", "border": "none"});
+        /*$("#"+highlightedBlock.row+"_"+highlightedBlock.col).css({"width": "32px", "height": "32px", "border": "none"});
         $("#"+highlightedBlock.row+"_"+highlightedBlock.col).find(".subBlock").css("display", "none");
 
         $("#"+row+"_"+col).css({"width": "28px", "height": "28px", "border": "white 2px solid"});
 
         if(highlightedBlock.col != selectedBlock.col && highlightedBlock.row != selectedBlock.row)
         {
-            $("#"+row+"_"+col).find(".subBlock").css({"display": "block"/*, width:"16px", height:"16px"*/});
-        }
+            $("#"+row+"_"+col).find(".subBlock").css({"display": "block"});
+        }*/
 
         highlightedBlock.row = row;
         highlightedBlock.col = col;
@@ -478,7 +494,7 @@
 
     function showBuyCellBlock(row, col)
     {
-        var buyBlock = $('#buyCell');
+        /*var buyBlock = $('#buyCell');
         if(score < 100)
         {
             return;
@@ -496,7 +512,7 @@
         buyBlock.append(buyO);
 
         buyBlock.attr("data-forrow", row);
-        buyBlock.attr("data-forcol", col);
+        buyBlock.attr("data-forcol", col);*/
     }
 
     function buyCell(color)
@@ -540,3 +556,5 @@
     });
 </script>
 </html>
+
+<!--cannabis = sun & smile-->
