@@ -1,0 +1,50 @@
+.block
+{
+    width: 32px;
+    height: 32px;
+    display: block;
+    float: left;
+    margin: 1px;
+}
+
+.subBlock
+{
+    width: 14px;
+    height: 14px;
+    position: relative;
+    right: 0px;
+}
+
+.right
+{
+    top: 0px;
+    left: 14px;
+    background: url("../img/2_.png");
+}
+
+.left
+{
+    float: left;
+    top: 14px;
+    background: url("../img/3_.png");
+}
+
+.lastCol
+{
+    clear: left;
+}
+
+body
+{
+    background-color: #333333;
+}
+
+#gameArea
+{
+    float: left;
+}
+
+#ctrlZ
+{
+    cursor: pointer;
+}
