@@ -1,0 +1,3 @@
+cd /Users/saldin/Dropbox/dev/js/mcolor-game && python -m SimpleHTTPServer
+
+http://localhost:8000/mcolor.html
