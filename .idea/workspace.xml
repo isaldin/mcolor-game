@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="083c2cba-90fd-4680-bbef-6246a4c18cc9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/simple_http_server.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="mcolor-game.iws" />
@@ -42,10 +41,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="simple_http_server.txt" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="simple_http_server.txt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/simple_http_server.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="2" column="33" selection-start="75" selection-end="108" vertical-scroll-proportion="0.045801528">
+            <state line="2" column="33" selection-start="75" selection-end="108" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -88,10 +96,10 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/css/styles.css" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/js/mcolor.coffee" />
         <option value="$PROJECT_DIR$/mcolor.html" />
         <option value="$PROJECT_DIR$/simple_http_server.txt" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -356,11 +364,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="8" selection-start="20" selection-end="20" vertical-scroll-proportion="0.023734177" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/mcolor.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
@@ -382,7 +385,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/simple_http_server.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="33" selection-start="75" selection-end="108" vertical-scroll-proportion="0.045801528">
+        <state line="2" column="33" selection-start="75" selection-end="108" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
